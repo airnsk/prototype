@@ -1,0 +1,574 @@
+version: "3.9"
+
+services:
+  # === Control Plane ===
+  controller:
+    build:
+      context: .
+      dockerfile: controller/Dockerfile
+    container_name: ztna-controller
+    hostname: controller
+    networks:
+      - control-plane
+    environment:
+      - ZTNA_NODE=controller
+      - ZTNA_CONTROLLER_SK_PATH=/app/keys/controller.sk
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+      - ZTNA_IDP_URL=http://mock-idp:8000
+      - ZTNA_TELEMETRY_URL=http://telemetry:8000
+      - ZTNA_REGISTRY_PATH=/app/config/registry.json
+    volumes:
+      - ./keys:/app/keys:ro
+      - ./controller/config:/app/config:ro
+    ports:
+      - "8080:8000"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  mock-idp:
+    build:
+      context: .
+      dockerfile: mock_idp/Dockerfile
+    container_name: ztna-mock-idp
+    hostname: mock-idp
+    networks:
+      - control-plane
+    environment:
+      - ZTNA_NODE=mock-idp
+    volumes:
+      - ./mock_idp/users.json:/app/users.json:ro
+    ports:
+      - "8081:8000"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  telemetry:
+    build:
+      context: .
+      dockerfile: telemetry_server/Dockerfile
+    container_name: ztna-telemetry
+    hostname: telemetry
+    networks:
+      - control-plane
+    environment:
+      - ZTNA_NODE=telemetry
+    ports:
+      - "8082:8000"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # === Client Agents (10 users) ===
+
+  client-01:
+    build:
+      context: .
+      dockerfile: client_agent/Dockerfile
+    container_name: ztna-client-01
+    hostname: client-01
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - control-plane
+      - data-plane
+    environment:
+      - ZTNA_NODE=client-01
+      - ZTNA_USER_NAME=user01
+      - ZTNA_USER_TOKEN=bearer-user01-token-85421c1a4d5a0b18
+      - ZTNA_CONTROLLER_URL=http://controller:8000
+      - ZTNA_IDP_URL=http://mock-idp:8000
+      - ZTNA_TELEMETRY_URL=http://telemetry:8000
+      - ZTNA_KEY_STORE_PATH=/app/keys/client_keys.json
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+    volumes:
+      - ./keys:/app/keys:ro
+      - ./client_agent/config:/app/config:ro
+    depends_on:
+      - controller
+      - mock-idp
+      - telemetry
+    command: sleep infinity
+
+  client-02:
+    build:
+      context: .
+      dockerfile: client_agent/Dockerfile
+    container_name: ztna-client-02
+    hostname: client-02
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - control-plane
+      - data-plane
+    environment:
+      - ZTNA_NODE=client-02
+      - ZTNA_USER_NAME=user02
+      - ZTNA_USER_TOKEN=bearer-user02-token-54cd2c5f6ecad87e
+      - ZTNA_CONTROLLER_URL=http://controller:8000
+      - ZTNA_IDP_URL=http://mock-idp:8000
+      - ZTNA_TELEMETRY_URL=http://telemetry:8000
+      - ZTNA_KEY_STORE_PATH=/app/keys/client_keys.json
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+    volumes:
+      - ./keys:/app/keys:ro
+      - ./client_agent/config:/app/config:ro
+    depends_on:
+      - controller
+      - mock-idp
+      - telemetry
+    command: sleep infinity
+
+  client-03:
+    build:
+      context: .
+      dockerfile: client_agent/Dockerfile
+    container_name: ztna-client-03
+    hostname: client-03
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - control-plane
+      - data-plane
+    environment:
+      - ZTNA_NODE=client-03
+      - ZTNA_USER_NAME=user03
+      - ZTNA_USER_TOKEN=bearer-user03-token-69eb2a7ef3acad02
+      - ZTNA_CONTROLLER_URL=http://controller:8000
+      - ZTNA_IDP_URL=http://mock-idp:8000
+      - ZTNA_TELEMETRY_URL=http://telemetry:8000
+      - ZTNA_KEY_STORE_PATH=/app/keys/client_keys.json
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+    volumes:
+      - ./keys:/app/keys:ro
+      - ./client_agent/config:/app/config:ro
+    depends_on:
+      - controller
+      - mock-idp
+      - telemetry
+    command: sleep infinity
+
+  client-04:
+    build:
+      context: .
+      dockerfile: client_agent/Dockerfile
+    container_name: ztna-client-04
+    hostname: client-04
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - control-plane
+      - data-plane
+    environment:
+      - ZTNA_NODE=client-04
+      - ZTNA_USER_NAME=user04
+      - ZTNA_USER_TOKEN=bearer-user04-token-b594c2fdf80196df
+      - ZTNA_CONTROLLER_URL=http://controller:8000
+      - ZTNA_IDP_URL=http://mock-idp:8000
+      - ZTNA_TELEMETRY_URL=http://telemetry:8000
+      - ZTNA_KEY_STORE_PATH=/app/keys/client_keys.json
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+    volumes:
+      - ./keys:/app/keys:ro
+      - ./client_agent/config:/app/config:ro
+    depends_on:
+      - controller
+      - mock-idp
+      - telemetry
+    command: sleep infinity
+
+  client-05:
+    build:
+      context: .
+      dockerfile: client_agent/Dockerfile
+    container_name: ztna-client-05
+    hostname: client-05
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - control-plane
+      - data-plane
+    environment:
+      - ZTNA_NODE=client-05
+      - ZTNA_USER_NAME=user05
+      - ZTNA_USER_TOKEN=bearer-user05-token-a00703980d20354e
+      - ZTNA_CONTROLLER_URL=http://controller:8000
+      - ZTNA_IDP_URL=http://mock-idp:8000
+      - ZTNA_TELEMETRY_URL=http://telemetry:8000
+      - ZTNA_KEY_STORE_PATH=/app/keys/client_keys.json
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+    volumes:
+      - ./keys:/app/keys:ro
+      - ./client_agent/config:/app/config:ro
+    depends_on:
+      - controller
+      - mock-idp
+      - telemetry
+    command: sleep infinity
+
+  client-06:
+    build:
+      context: .
+      dockerfile: client_agent/Dockerfile
+    container_name: ztna-client-06
+    hostname: client-06
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - control-plane
+      - data-plane
+    environment:
+      - ZTNA_NODE=client-06
+      - ZTNA_USER_NAME=user06
+      - ZTNA_USER_TOKEN=bearer-user06-token-4f42058718a7bf39
+      - ZTNA_CONTROLLER_URL=http://controller:8000
+      - ZTNA_IDP_URL=http://mock-idp:8000
+      - ZTNA_TELEMETRY_URL=http://telemetry:8000
+      - ZTNA_KEY_STORE_PATH=/app/keys/client_keys.json
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+    volumes:
+      - ./keys:/app/keys:ro
+      - ./client_agent/config:/app/config:ro
+    depends_on:
+      - controller
+      - mock-idp
+      - telemetry
+    command: sleep infinity
+
+  client-07:
+    build:
+      context: .
+      dockerfile: client_agent/Dockerfile
+    container_name: ztna-client-07
+    hostname: client-07
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - control-plane
+      - data-plane
+    environment:
+      - ZTNA_NODE=client-07
+      - ZTNA_USER_NAME=user07
+      - ZTNA_USER_TOKEN=bearer-user07-token-d0b2b12e125d9eb7
+      - ZTNA_CONTROLLER_URL=http://controller:8000
+      - ZTNA_IDP_URL=http://mock-idp:8000
+      - ZTNA_TELEMETRY_URL=http://telemetry:8000
+      - ZTNA_KEY_STORE_PATH=/app/keys/client_keys.json
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+    volumes:
+      - ./keys:/app/keys:ro
+      - ./client_agent/config:/app/config:ro
+    depends_on:
+      - controller
+      - mock-idp
+      - telemetry
+    command: sleep infinity
+
+  client-08:
+    build:
+      context: .
+      dockerfile: client_agent/Dockerfile
+    container_name: ztna-client-08
+    hostname: client-08
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - control-plane
+      - data-plane
+    environment:
+      - ZTNA_NODE=client-08
+      - ZTNA_USER_NAME=user08
+      - ZTNA_USER_TOKEN=bearer-user08-token-e9b83089d7834f7a
+      - ZTNA_CONTROLLER_URL=http://controller:8000
+      - ZTNA_IDP_URL=http://mock-idp:8000
+      - ZTNA_TELEMETRY_URL=http://telemetry:8000
+      - ZTNA_KEY_STORE_PATH=/app/keys/client_keys.json
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+    volumes:
+      - ./keys:/app/keys:ro
+      - ./client_agent/config:/app/config:ro
+    depends_on:
+      - controller
+      - mock-idp
+      - telemetry
+    command: sleep infinity
+
+  client-09:
+    build:
+      context: .
+      dockerfile: client_agent/Dockerfile
+    container_name: ztna-client-09
+    hostname: client-09
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - control-plane
+      - data-plane
+    environment:
+      - ZTNA_NODE=client-09
+      - ZTNA_USER_NAME=user09
+      - ZTNA_USER_TOKEN=bearer-user09-token-9fc7a83ecd0cb0f8
+      - ZTNA_CONTROLLER_URL=http://controller:8000
+      - ZTNA_IDP_URL=http://mock-idp:8000
+      - ZTNA_TELEMETRY_URL=http://telemetry:8000
+      - ZTNA_KEY_STORE_PATH=/app/keys/client_keys.json
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+    volumes:
+      - ./keys:/app/keys:ro
+      - ./client_agent/config:/app/config:ro
+    depends_on:
+      - controller
+      - mock-idp
+      - telemetry
+    command: sleep infinity
+
+  client-10:
+    build:
+      context: .
+      dockerfile: client_agent/Dockerfile
+    container_name: ztna-client-10
+    hostname: client-10
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - control-plane
+      - data-plane
+    environment:
+      - ZTNA_NODE=client-10
+      - ZTNA_USER_NAME=user10
+      - ZTNA_USER_TOKEN=bearer-user10-token-b3793e6a2c0bc3c0
+      - ZTNA_CONTROLLER_URL=http://controller:8000
+      - ZTNA_IDP_URL=http://mock-idp:8000
+      - ZTNA_TELEMETRY_URL=http://telemetry:8000
+      - ZTNA_KEY_STORE_PATH=/app/keys/client_keys.json
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+    volumes:
+      - ./keys:/app/keys:ro
+      - ./client_agent/config:/app/config:ro
+    depends_on:
+      - controller
+      - mock-idp
+      - telemetry
+    command: sleep infinity
+
+  # === Data Plane: Server Agent ===
+  server-agent:
+    build:
+      context: .
+      dockerfile: server_agent/Dockerfile
+    container_name: ztna-server
+    hostname: server-agent
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - control-plane
+      - data-plane
+    environment:
+      - ZTNA_NODE=server-agent
+      - ZTNA_CONTROLLER_URL=http://controller:8000
+      - ZTNA_TELEMETRY_URL=http://telemetry:8000
+      - ZTNA_KEY_STORE_PATH=/app/keys/server_keys.json
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+    volumes:
+      - ./keys:/app/keys:ro
+      - ./server_agent/config:/app/config:ro
+    depends_on:
+      - controller
+      - telemetry
+      - protected-service-1
+      - protected-service-2
+      - protected-service-3
+      - protected-service-4
+      - protected-service-5
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # === VPN (Baseline) ===
+  vpn-client:
+    build:
+      context: .
+      dockerfile: vpn/Dockerfile.client
+    container_name: ztna-vpn-client
+    hostname: vpn-client
+    devices:
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - control-plane
+      - data-plane
+    volumes:
+      - ./vpn/certs:/etc/openvpn/certs:ro
+    depends_on:
+      - vpn-server
+    command: sleep infinity
+
+  vpn-server:
+    build:
+      context: .
+      dockerfile: vpn/Dockerfile
+    container_name: ztna-vpn-server
+    hostname: vpn-server
+    devices:
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    networks:
+      - control-plane
+      - data-plane
+    ports:
+      - "1194:1194/udp"
+    volumes:
+      - ./vpn/certs:/etc/openvpn/certs:ro
+    command: openvpn --config /etc/openvpn/server.conf
+
+  # === Gateway-ZTNA (Baseline) ===
+  gateway-ztna:
+    build:
+      context: .
+      dockerfile: gateway_ztna/Dockerfile
+    container_name: ztna-gateway
+    hostname: gateway-ztna
+    networks:
+      - control-plane
+      - data-plane
+    ports:
+      - "8443:8443"
+    depends_on:
+      - protected-service-1
+      - protected-service-2
+      - protected-service-3
+      - protected-service-4
+      - protected-service-5
+
+  # === Protected Services (S1, S2, S3) ===
+  protected-service-1:
+    build:
+      context: .
+      dockerfile: protected_service/Dockerfile
+    container_name: ztna-protected-service-1
+    hostname: protected-service-1
+    networks:
+      data-plane:
+        ipv4_address: 172.21.0.50
+    environment:
+      - ZTNA_NODE=protected-service-1
+      - SERVICE_ID=protected-service-1
+    ports:
+      - "8090:8000"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  protected-service-2:
+    build:
+      context: .
+      dockerfile: protected_service/Dockerfile
+    container_name: ztna-protected-service-2
+    hostname: protected-service-2
+    networks:
+      data-plane:
+        ipv4_address: 172.21.0.51
+    environment:
+      - ZTNA_NODE=protected-service-2
+      - SERVICE_ID=protected-service-2
+    ports:
+      - "8091:8000"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  protected-service-3:
+    build:
+      context: .
+      dockerfile: protected_service/Dockerfile
+    container_name: ztna-protected-service-3
+    hostname: protected-service-3
+    networks:
+      data-plane:
+        ipv4_address: 172.21.0.52
+    environment:
+      - ZTNA_NODE=protected-service-3
+      - SERVICE_ID=protected-service-3
+    ports:
+      - "8092:8000"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  protected-service-4:
+    build:
+      context: .
+      dockerfile: protected_service/Dockerfile
+    container_name: ztna-protected-service-4
+    hostname: protected-service-4
+    networks:
+      data-plane:
+        ipv4_address: 172.21.0.53
+    environment:
+      - ZTNA_NODE=protected-service-4
+      - SERVICE_ID=protected-service-4
+    ports:
+      - "8093:8000"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  protected-service-5:
+    build:
+      context: .
+      dockerfile: protected_service/Dockerfile
+    container_name: ztna-protected-service-5
+    hostname: protected-service-5
+    networks:
+      data-plane:
+        ipv4_address: 172.21.0.54
+    environment:
+      - ZTNA_NODE=protected-service-5
+      - SERVICE_ID=protected-service-5
+    ports:
+      - "8094:8000"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+networks:
+  control-plane:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+  data-plane:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
+
+volumes:
+  controller-keys:
+  client-keys:
+  server-keys:
