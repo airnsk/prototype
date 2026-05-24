@@ -1,0 +1,61 @@
+{
+  "architecture": "VPN",
+  "timestamp": 1778980429,
+  "phases": {
+    "pre_access": {
+      "label": "pre_access",
+      "protected-service-1_ping": "unreachable",
+      "protected-service-1_tcp_connect": "closed",
+      "protected-service-1_http": "unreachable",
+      "protected-service-2_ping": "unreachable",
+      "protected-service-2_tcp_connect": "closed",
+      "protected-service-2_http": "unreachable",
+      "protected-service-3_ping": "unreachable",
+      "protected-service-3_tcp_connect": "closed",
+      "protected-service-3_http": "unreachable",
+      "accessible_services": 0
+    },
+    "during_session": {
+      "label": "during_session",
+      "protected-service-1_ping": "reachable",
+      "protected-service-1_tcp_connect": "open",
+      "protected-service-1_http": "200",
+      "protected-service-2_ping": "reachable",
+      "protected-service-2_tcp_connect": "open",
+      "protected-service-2_http": "200",
+      "protected-service-3_ping": "reachable",
+      "protected-service-3_tcp_connect": "open",
+      "protected-service-3_http": "200",
+      "accessible_services": 3
+    },
+    "post_revoke": {
+      "label": "post_revoke",
+      "protected-service-1_ping": "unreachable",
+      "protected-service-1_tcp_connect": "closed",
+      "protected-service-1_http": "unreachable",
+      "protected-service-2_ping": "unreachable",
+      "protected-service-2_tcp_connect": "closed",
+      "protected-service-2_http": "unreachable",
+      "protected-service-3_ping": "unreachable",
+      "protected-service-3_tcp_connect": "closed",
+      "protected-service-3_http": "unreachable",
+      "accessible_services": 0
+    }
+  },
+  "lateral_movement_from_vpn_server": {
+    "protected-service-1_from_vpn_server": "200",
+    "protected-service-2_from_vpn_server": "200",
+    "protected-service-3_from_vpn_server": "200"
+  },
+  "summary": {
+    "pre_access_accessible": 0,
+    "during_accessible": 3,
+    "post_revoke_accessible": 0,
+    "lateral_movement": {
+      "protected-service-1_from_vpn_server": "200",
+      "protected-service-2_from_vpn_server": "200",
+      "protected-service-3_from_vpn_server": "200"
+    },
+    "expected": "VPN: 0 -> 3 (all subnet visible) -> 0; lateral: 3 services reachable from vpn-server"
+  }
+}

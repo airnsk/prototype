@@ -1,0 +1,45 @@
+{
+  "services": {
+    "protected-service-1": {
+      "endpoint": "172.22.0.10:51820",
+      "allowed_ips": [
+        "172.23.0.50/32"
+      ]
+    },
+    "protected-service-2": {
+      "endpoint": "172.22.0.10:51820",
+      "allowed_ips": [
+        "172.23.0.51/32"
+      ]
+    },
+    "protected-service-3": {
+      "endpoint": "172.22.0.10:51820",
+      "allowed_ips": [
+        "172.23.0.52/32"
+      ]
+    },
+    "protected-service-4": {
+      "endpoint": "172.22.0.10:51820",
+      "allowed_ips": [
+        "172.23.0.53/32"
+      ]
+    },
+    "protected-service-5": {
+      "endpoint": "172.22.0.10:51820",
+      "allowed_ips": [
+        "172.23.0.54/32"
+      ]
+    }
+  },
+  "agents": {
+    "client-agent": {
+      "allowed_services": [
+        "protected-service-1",
+        "protected-service-2",
+        "protected-service-3",
+        "protected-service-4",
+        "protected-service-5"
+      ]
+    }
+  }
+}

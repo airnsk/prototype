@@ -1,0 +1,149 @@
+version: "3.9"
+
+services:
+  controller:
+    build:
+      context: ../..
+      dockerfile: controller/Dockerfile
+    container_name: gateway-ctrl
+    hostname: controller
+    networks:
+      - control-plane
+    environment:
+      - ZTNA_NODE=controller
+      - ZTNA_CONTROLLER_SK_PATH=/app/keys/controller.sk
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+      - ZTNA_IDP_URL=http://mock-idp:8000
+      - ZTNA_TELEMETRY_URL=http://telemetry:8000
+      - ZTNA_REGISTRY_PATH=/app/config/registry.json
+    volumes:
+      - ../../keys:/app/keys:ro
+      - ../../controller/config:/app/config:ro
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  mock-idp:
+    build:
+      context: ../..
+      dockerfile: mock_idp/Dockerfile
+    container_name: gateway-idp
+    hostname: mock-idp
+    networks:
+      - control-plane
+    environment:
+      - ZTNA_NODE=mock-idp
+    volumes:
+      - ../../mock_idp/users.json:/app/users.json:ro
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  telemetry:
+    build:
+      context: ../..
+      dockerfile: telemetry_server/Dockerfile
+    container_name: gateway-telemetry
+    hostname: telemetry
+    networks:
+      - control-plane
+    environment:
+      - ZTNA_NODE=telemetry
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  gateway:
+    build:
+      context: ../..
+      dockerfile: gateway_ztna/Dockerfile.app
+    container_name: gateway-ztna
+    hostname: gateway-ztna
+    networks:
+      - control-plane
+      - data-plane
+    ports:
+      - "8443:8443"
+    environment:
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+    volumes:
+      - ../../keys:/app/keys:ro
+      - ../../gateway_ztna/certs:/app/certs:ro
+    depends_on:
+      - controller
+      - mock-idp
+      - protected-service-1
+      - protected-service-2
+      - protected-service-3
+
+  protected-service-1:
+    build:
+      context: ../..
+      dockerfile: protected_service/Dockerfile
+    container_name: gateway-service-1
+    hostname: protected-service-1
+    networks:
+      data-plane:
+        ipv4_address: 172.27.0.50
+    environment:
+      - ZTNA_NODE=protected-service-1
+      - SERVICE_ID=protected-service-1
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  protected-service-2:
+    build:
+      context: ../..
+      dockerfile: protected_service/Dockerfile
+    container_name: gateway-service-2
+    hostname: protected-service-2
+    networks:
+      data-plane:
+        ipv4_address: 172.27.0.51
+    environment:
+      - ZTNA_NODE=protected-service-2
+      - SERVICE_ID=protected-service-2
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  protected-service-3:
+    build:
+      context: ../..
+      dockerfile: protected_service/Dockerfile
+    container_name: gateway-service-3
+    hostname: protected-service-3
+    networks:
+      data-plane:
+        ipv4_address: 172.27.0.52
+    environment:
+      - ZTNA_NODE=protected-service-3
+      - SERVICE_ID=protected-service-3
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  probe-client:
+    build:
+      context: ../..
+      dockerfile: client_agent/Dockerfile
+    container_name: gateway-probe
+    hostname: probe-client
+    networks:
+      - control-plane
+    environment:
+      - ZTNA_NODE=probe-client
+      - ZTNA_USER_NAME=user01
+      - ZTNA_USER_TOKEN=bearer-user01-token-85421c1a4d5a0b18
+      - ZTNA_CONTROLLER_URL=http://controller:8000
+      - ZTNA_IDP_URL=http://mock-idp:8000
+      - ZTNA_KEY_STORE_PATH=/app/keys/client_keys.json
+      - ZTNA_CONTROLLER_PK_PATH=/app/keys/controller.pk
+    volumes:
+      - ../../keys:/app/keys:ro
+      - ../../client_agent/config:/app/config:ro
+    depends_on:
+      - controller
+      - mock-idp
+    command: sleep infinity
+
+networks:
+  control-plane:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.26.0.0/24
+  data-plane:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.27.0.0/24

@@ -1,0 +1,86 @@
+{
+  "users": {
+    "user01": {
+      "password": "password-1-9966b75d",
+      "attrs": {
+        "role": "user",
+        "department": "dept2"
+      }
+    },
+    "user02": {
+      "password": "password-2-17acd239",
+      "attrs": {
+        "role": "user",
+        "department": "dept3"
+      }
+    },
+    "user03": {
+      "password": "password-3-f9897436",
+      "attrs": {
+        "role": "user",
+        "department": "dept1"
+      }
+    },
+    "user04": {
+      "password": "password-4-0e12b4ef",
+      "attrs": {
+        "role": "user",
+        "department": "dept2"
+      }
+    },
+    "user05": {
+      "password": "password-5-9c2fd88a",
+      "attrs": {
+        "role": "user",
+        "department": "dept3"
+      }
+    },
+    "user06": {
+      "password": "password-6-f7af14c3",
+      "attrs": {
+        "role": "user",
+        "department": "dept1"
+      }
+    },
+    "user07": {
+      "password": "password-7-c7dd857d",
+      "attrs": {
+        "role": "user",
+        "department": "dept2"
+      }
+    },
+    "user08": {
+      "password": "password-8-3cc4ab03",
+      "attrs": {
+        "role": "user",
+        "department": "dept3"
+      }
+    },
+    "user09": {
+      "password": "password-9-9804a176",
+      "attrs": {
+        "role": "user",
+        "department": "dept1"
+      }
+    },
+    "user10": {
+      "password": "password-10-1c7822e9",
+      "attrs": {
+        "role": "user",
+        "department": "dept2"
+      }
+    }
+  },
+  "bearer_tokens": {
+    "user01": "bearer-user01-token-85421c1a4d5a0b18",
+    "user02": "bearer-user02-token-54cd2c5f6ecad87e",
+    "user03": "bearer-user03-token-69eb2a7ef3acad02",
+    "user04": "bearer-user04-token-b594c2fdf80196df",
+    "user05": "bearer-user05-token-a00703980d20354e",
+    "user06": "bearer-user06-token-4f42058718a7bf39",
+    "user07": "bearer-user07-token-d0b2b12e125d9eb7",
+    "user08": "bearer-user08-token-e9b83089d7834f7a",
+    "user09": "bearer-user09-token-9fc7a83ecd0cb0f8",
+    "user10": "bearer-user10-token-b3793e6a2c0bc3c0"
+  }
+}

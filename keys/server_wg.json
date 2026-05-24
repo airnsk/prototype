@@ -1,0 +1,22 @@
+{
+  "protected-service-1": {
+    "private": "qpD2jfXGsZ5j0+sCsZCPhbLS0h7rVJP0chcZ0Ud4PgU=",
+    "public": "Nf4BCxO2rzBmCy/RXD3pGZCF1wVC0Aq0zf58/T5ek3M="
+  },
+  "protected-service-2": {
+    "private": "ofD8AZwCKzVlIkgQUwGNk1MGIOCPKNje4pMD/aif+uo=",
+    "public": "Ehivyl5DMdvh86ztFOby405yBHy8kUm7mJPAZ89m2rA="
+  },
+  "protected-service-3": {
+    "private": "SvhVvSm12vEOztDEL3YfkOh5eV1MIxMMtjt0WaOjhKc=",
+    "public": "xw2xOpzR4aT317j0QXtRxivYJHuHrmXEtOPqx4Fkcr4="
+  },
+  "protected-service-4": {
+    "private": "QmLvfGzn1H8TEcnbnaY65htqx3ad1n5hWSMEmngIp+M=",
+    "public": "6iAGqRFcVJv2S5qKPahBxQYNgN7bajVV9VqdmtyX/GA="
+  },
+  "protected-service-5": {
+    "private": "esrSM2DUPed9oPhIPSiWOfRLl4aDH7et3DaWsDbEZ+8=",
+    "public": "dKjmdO4E0MvRyMztwi8fQkm5w35qFRwZ7e0aXYZFwSI="
+  }
+}

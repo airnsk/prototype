@@ -1,0 +1,27 @@
+{
+  "architecture": "VPN",
+  "timestamp": 1778974993,
+  "reachability": {
+    "pre_access": "unreachable",
+    "during_session": "reachable",
+    "post_revoke": "unreachable"
+  },
+  "timing": {
+    "t_setup_ms": 188.381,
+    "rtt_ms": {
+      "mean": 2.14,
+      "min": 1.702,
+      "max": 2.956
+    },
+    "t_revoke_ms": 181.164
+  },
+  "lateral_movement": {
+    "protected-service-1": "allowed",
+    "protected-service-2": "allowed",
+    "protected-service-3": "allowed"
+  },
+  "negatives": {
+    "invalid_cert": "blocked"
+  },
+  "setup_ok": true
+}

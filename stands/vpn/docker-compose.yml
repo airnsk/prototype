@@ -1,0 +1,102 @@
+version: "3.9"
+
+services:
+  vpn-server:
+    build:
+      context: ../..
+      dockerfile: vpn/Dockerfile
+    container_name: vpn-server
+    hostname: vpn-server
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    devices:
+      - /dev/net/tun
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    networks:
+      - control-plane
+      - data-plane
+    ports:
+      - "1194:1194/udp"
+    volumes:
+      - ../../vpn/certs:/etc/openvpn/certs:ro
+      - ./server.conf:/etc/openvpn/server.conf:ro
+    command: >
+      sh -c "iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth1 -j MASQUERADE && iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE && openvpn --config /etc/openvpn/server.conf"
+
+  vpn-client:
+    build:
+      context: ../..
+      dockerfile: vpn/Dockerfile.client
+    container_name: vpn-client
+    hostname: vpn-client
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    devices:
+      - /dev/net/tun
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - control-plane
+    volumes:
+      - ../../vpn/certs:/etc/openvpn/certs:ro
+    depends_on:
+      - vpn-server
+    command: sleep infinity
+
+  protected-service-1:
+    build:
+      context: ../..
+      dockerfile: protected_service/Dockerfile
+    container_name: vpn-service-1
+    hostname: protected-service-1
+    networks:
+      data-plane:
+        ipv4_address: 172.25.0.50
+    environment:
+      - ZTNA_NODE=protected-service-1
+      - SERVICE_ID=protected-service-1
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  protected-service-2:
+    build:
+      context: ../..
+      dockerfile: protected_service/Dockerfile
+    container_name: vpn-service-2
+    hostname: protected-service-2
+    networks:
+      data-plane:
+        ipv4_address: 172.25.0.51
+    environment:
+      - ZTNA_NODE=protected-service-2
+      - SERVICE_ID=protected-service-2
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  protected-service-3:
+    build:
+      context: ../..
+      dockerfile: protected_service/Dockerfile
+    container_name: vpn-service-3
+    hostname: protected-service-3
+    networks:
+      data-plane:
+        ipv4_address: 172.25.0.52
+    environment:
+      - ZTNA_NODE=protected-service-3
+      - SERVICE_ID=protected-service-3
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+networks:
+  control-plane:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.24.0.0/24
+  data-plane:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24
